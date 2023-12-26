@@ -64,12 +64,14 @@ echo "1. 4Gb"
 echo "2. 8Gb"
 echo "3. 16Gb"
 echo "4. 32Gb"
+echo "5. Inicio"
 read disk
 case $disk in
 1) disco=4096M;;
 2) disco=8192M;;
 3) disco=16000M;;
 4) disco=32000M;;
+5) os_seleccion;;
 *) echo "Incorrecto"
 esac
 }
@@ -94,8 +96,7 @@ cat <<+ >> config.sh
 echo " Configurando debootstrap segunda fase"
 sleep 3
 /debootstrap/debootstrap --second-stage
-export LANG=
-repo_trusty
+export LANG=C
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 echo "Europe/Berlin" > /etc/timezone
 echo "$imagen" >> /etc/hostname
