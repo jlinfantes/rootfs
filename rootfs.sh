@@ -104,30 +104,36 @@ mkfs.ext4 $imagen.img
 chmod 777 $imagen.img
 mount -o loop $imagen.img /$imagen
 debootstrap  --foreign $imagen /$imagen $origin
-case $imagen in
+    case $imagen in
         trusty)
-            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            repos="deb http://es.archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse"
             ;;
         xenial)
-            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            repos="deb http://es.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse"
             ;;
         bionic)
-            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            repos="deb http://es.archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse"
             ;;
         focal)
-            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse' > /etc/apt/sources.list
-                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            repos="deb http://es.archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse
+                   deb http://es.archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse"
             ;;
+	kali-rolling)
+	    repos="deb http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware"
+	    ;;
         *)
             echo "Repositorios no definidos para $imagen"; exit 1 ;;
     esac
+
+    # Insertar líneas en /etc/apt/sources.list
+    echo "$repos" > /$imagen/etc/apt/sources.list
 
 }
 montaje() {
@@ -180,7 +186,7 @@ update-locale LC_ALL=es_ES.UTF-8 LANG=es_ES.UTF-8 LC_MESSAGES=POSIX
 dpkg-reconfigure locales
 dpkg-reconfigure -f noninteractive tzdata
 apt-get upgrade -y 
-hostnamectl set-hostname bionic
+hostnamectl set-hostname $imagen
 sudo apt install ubuntu-minimal  -y
 apt-get -f install
 apt-get clean
