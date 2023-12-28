@@ -128,8 +128,8 @@ debootstrap  --foreign $imagen /$imagen $origin
 	kali-rolling)
 	    repos="deb http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware"
 	    ;;
-        *)
-            echo "Repositorios no definidos para $imagen"; exit 1 ;;
+        *) 
+	    echo "Repositorios no definidos para $imagen"; exit 1 ;;
     esac
 
     # Insertar líneas en /etc/apt/sources.list
@@ -178,7 +178,8 @@ echo "/dev/mmcblk0p1 /	   ext4	    errors=remount-ro,noatime,nodiratime 0 1" >> 
 echo "tmpfs    /tmp        tmpfs    nodev,nosuid,mode=1777 0 0" >> /etc/fstab
 echo "tmpfs    /var/tmp    tmpfs    defaults    0 0" >> /etc/fstab
 $repos	
-apt-get update
+apt update
+apt install openssl ca-certificates apt-transport-https locales locale-gen
 echo "Reconfigurando parametros locales"
 locale-gen es_ES.UTF-8
 export LC_ALL="es_ES.UTF-8"
