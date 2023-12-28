@@ -82,18 +82,22 @@ esac
 disco_tamano() {
 clear
 echo "Tamaño del disco"
-echo "1. 4Gb"
-echo "2. 8Gb"
-echo "3. 16Gb"
-echo "4. 32Gb"
-echo "5. Inicio"
+echo "1. 1 Gb"
+echo "2. 2 Gb"
+echo "3. 4 Gb"
+echo "4. 8 Gb"
+echo "5. 16 Gb"
+echo "6. 32 Gb"
+echo "7. Inicio"
 read disk
 case $disk in
-1) disco=4096M;;
-2) disco=8192M;;
-3) disco=16000M;;
-4) disco=32000M;;
-5) os_seleccion;;
+1) disco=1024M;;
+2) disco=2048M;;
+3) disco=4096M;;
+4) disco=8192M;;
+5) disco=16000M;;
+6) disco=32000M;;
+7) os_seleccion;;
 *) echo "Incorrecto"
 esac
 }
