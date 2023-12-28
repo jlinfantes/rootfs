@@ -1,59 +1,76 @@
 #!/bin/sh
 clear
-os_debian(){
-clear
-echo "Debian"
-echo "1. Debian 10 Buster"
-echo "2. Debian 11 Bullseye"
-echo "3. Debian 12 bookworm"
-echo "4. Atras"
-echo "5. salir"
-echo -n " Selecciona una opción [1-5]"
-read debian
-case $debian in
-	1) imagen=buster;;
-	2) imagen=bullseye;;
-	3) imagen=bookworm;;
-	4) os_seleccion;;
-	5) exit;;
-	*) echo "Opcion no valida";;
-esac
+os_debian() {
+    clear
+    echo "Debian"
+    echo "1. Debian 10 Buster"
+    echo "2. Debian 11 Bullseye"
+    echo "3. Debian 12 bookworm"
+    echo "4. Atras"
+    echo "5. salir"
+    echo -n " Selecciona una opción [1-5]"
+    read debian
+
+    case $debian in
+        1) imagen=buster;;
+        2) imagen=bullseye;;
+        3) imagen=bookworm;;
+        4) os_seleccion;;
+        5) exit;;
+        *) echo "Opcion no valida";;
+    esac
 }
 os_ubuntu() {
 clear
-echo "Ubuntu "
-echo "1. Trusty"
-echo "2. Xenial"
-echo "3. Bionic"
-echo "4. Focal"
-echo "5. Jammy"
-echo "6. Atras"
-echo "7. Salir"
-echo -n " Selecciona una opción [1-7]"
-read ubuntu
-case $ubuntu in
-        1) imagen=trusty;;
-        2) imagen=xenial;;
-        3) imagen=bionic;;
-        4) imagen=focal;;
-        5) imagen=jammy;;
-	6) os_seleccion;;
-        7) exit;;
-	*) echo "Opcion no valida";;
-esac
+	echo "Ubuntu "
+	echo "1. Trusty"
+	echo "2. Xenial"
+	echo "3. Bionic"
+	echo "4. Focal"
+	echo "5. Jammy"
+	echo "6. Atras"
+	echo "7. Salir"
+	echo -n " Selecciona una opción [1-7]"
+	read ubuntu
+	case $ubuntu in
+		1) imagen=trusty 
+		origin=http://archive.ubuntu.com/ubuntu;;
+		2) imagen=xenial;;
+		3) imagen=bionic;;
+		4) imagen=focal;;
+		5) imagen=jammy;;
+		6) os_seleccion;;
+		7) exit;;
+		*) echo "Opcion no valida";;
+	esac
 }
+os_kali () {
+	clear
+	echo "Kali Linux"
+	echo "1. Rolling"
+	echo "2. Atrás"
+	echo "3. Salir"
+	read kali
+	case $kali in
+	1) imagen=kali-rolling;;
+	2) os_seleccion;;
+	3) exit;;
+	esac
+}			
 os_seleccion() {
 clear
-echo "Selecciona Sistema operativo"
-echo "1. Ubuntu"
-echo "2. Debian"
-echo "3. Salir"
-echo -n " Selecciona una opción [1-3]"
-read OS
-case $OS in
+	echo "Selecciona Sistema operativo"
+	echo "1. Ubuntu"
+	echo "2. Debian"
+	echo "3. Kali"
+	echo "4. Salir"
+	echo -n " Selecciona una opción [1-3]"
+	read OS
+	case $OS in
 	1) os_ubuntu;;
 	2) os_debian;;
-	3) exit;;
+	3) os_kali;;
+	4) exit;;
 	*) echo "Opcion no valida";;
 esac
 }
@@ -75,21 +92,33 @@ case $disk in
 *) echo "Incorrecto"
 esac
 }
-os_seleccion
-disco_tamano
-
-apt install debootstrap -y
+creacion_imagen() {
 mkdir /$imagen
 dd if=/dev/zero of=$imagen.img bs=1 count=0 seek=$disco
 mkfs.ext4 $imagen.img
 chmod 777 $imagen.img
 mount -o loop $imagen.img /$imagen
-debootstrap  --foreign $imagen /$imagen
-
+debootstrap  --foreign $imagen /$imagen $origin
+}
+montaje() {
 sudo mount -o bind /dev /$imagen/dev
 sudo mount -o bind /dev/pts /$imagen/dev/pts
-sudo mount -t sysfs /sys /$imagen/sys
-sudo mount -t proc /proc /$imagen/proc
+sudo mount -t sysfs sysfs /sys /$imagen/sys
+sudo mount -t proc proc /proc /$imagen/proc
+}
+parte_final() {
+chmod +x  config.sh
+sudo cp  config.sh /$imagen/home
+chroot /$imagen /bin/sh -i ./home/config.sh
+rm config.sh
+exit
+}
+
+os_seleccion
+disco_tamano
+apt install debootstrap -y
+creacion_imagen
+montaje
 > config.sh
 cat <<+ >> config.sh
 #!/bin/sh
@@ -129,8 +158,7 @@ addgroup $imagen sudo
 addgroup $imagen adm
 addgroup $imagen users
 +
-chmod +x  config.sh
-sudo cp  config.sh /$imagen/home
-chroot /$imagen /bin/sh -i ./home/config.sh
-rm config.sh
-exit
+parte_final
+
+
+
