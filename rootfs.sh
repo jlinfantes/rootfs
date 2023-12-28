@@ -35,10 +35,14 @@ clear
 	case $ubuntu in
 		1) imagen=trusty 
 		origin=http://archive.ubuntu.com/ubuntu;;
-		2) imagen=xenial;;
-		3) imagen=bionic;;
-		4) imagen=focal;;
-		5) imagen=jammy;;
+		2) imagen=xenial
+		origin=http://archive.ubuntu.com/ubuntu;;
+		3) imagen=bionic
+		origin=http://archive.ubuntu.com/ubuntu;;
+		4) imagen=focal
+		origin=http://archive.ubuntu.com/ubuntu;;
+		5) imagen=jammy
+		origin=http://archive.ubuntu.com/ubuntu;;
 		6) os_seleccion;;
 		7) exit;;
 		*) echo "Opcion no valida";;
@@ -52,7 +56,8 @@ os_kali () {
 	echo "3. Salir"
 	read kali
 	case $kali in
-	1) imagen=kali-rolling;;
+	1) imagen=kali-rolling
+	origin=http://http.kali.org/kali;;
 	2) os_seleccion;;
 	3) exit;;
 	esac
@@ -99,12 +104,37 @@ mkfs.ext4 $imagen.img
 chmod 777 $imagen.img
 mount -o loop $imagen.img /$imagen
 debootstrap  --foreign $imagen /$imagen $origin
+case $imagen in
+        trusty)
+            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            ;;
+        xenial)
+            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ xenial main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ xenial-security main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ xenial-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            ;;
+        bionic)
+            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            ;;
+        focal)
+            repos="echo 'deb http://es.archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse' > /etc/apt/sources.list
+                   echo 'deb http://es.archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse' > /etc/apt/sources.list"
+            ;;
+        *)
+            echo "Repositorios no definidos para $imagen"; exit 1 ;;
+    esac
+
 }
 montaje() {
 sudo mount -o bind /dev /$imagen/dev
 sudo mount -o bind /dev/pts /$imagen/dev/pts
-sudo mount -t sysfs sysfs /sys /$imagen/sys
-sudo mount -t proc proc /proc /$imagen/proc
+sudo mount -t sysfs /sys /$imagen/sys
+sudo mount -t proc /proc /$imagen/proc
 }
 parte_final() {
 chmod +x  config.sh
@@ -140,7 +170,8 @@ echo "auto lo
 iface lo inet loopback" >> /etc/network/interfaces
 echo "/dev/mmcblk0p1 /	   ext4	    errors=remount-ro,noatime,nodiratime 0 1" >> /etc/fstab
 echo "tmpfs    /tmp        tmpfs    nodev,nosuid,mode=1777 0 0" >> /etc/fstab
-echo "tmpfs    /var/tmp    tmpfs    defaults    0 0" >> /etc/fstab	
+echo "tmpfs    /var/tmp    tmpfs    defaults    0 0" >> /etc/fstab
+$repos	
 apt-get update
 echo "Reconfigurando parametros locales"
 locale-gen es_ES.UTF-8
@@ -159,6 +190,3 @@ addgroup $imagen adm
 addgroup $imagen users
 +
 parte_final
-
-
-
